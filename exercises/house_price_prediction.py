@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
+
 pio.templates.default = "simple_white"
 
 
@@ -23,7 +24,45 @@ def load_data(filename: str):
     Design matrix and response vector (prices) - either as a single
     DataFrame or a Tuple[DataFrame, Series]
     """
-    raise NotImplementedError()
+    # load the data set:
+    df = pd.read_csv(filename)
+
+    df = df.dropna().drop_duplicates()
+
+    # convert zipcode data to from string to int:
+    df["zipcode"] = df["zipcode"].astype(int)
+
+    # drop id (uniques) - not meaningful data:
+    df = df.drop(["id"], asix=1)
+
+    # handle Nan:
+    pd.get_dummies(df)
+
+    # handle empty cells:
+    df.fillna(df.mean())  # todo
+
+    # todo handle date representation
+
+    # todo handle negative price? Can a living room size be too small?
+    df = df.drop(df[df.price <= 0].index)  # todo how to manipulate the price if this is what we need to predict
+
+    # valid information:
+    df = df.drop(df[df["price"] <= 0])
+    df = df.drop(df[df["floors"] <= 0])
+    df = df.drop(df[df["sqft_liv"] <= 0])
+    df = df.drop(df[df["sqft_lot"] <= 0])
+
+    df = df.drop(df[df["bedrooms"] < 0])
+    df = df.drop(df[df["bathrooms"] < 0])
+    df = df.drop(df[df["sqft_basement"] < 0])
+    df = df.drop(df[~df["view"].isin([0, 1, 2, 3, 4])])
+    df = df.drop(df[~df["condition"].isin([1, 2, 3, 4, 5])])
+    df = df.drop(df[df["view"] < 0])
+
+    df = df.drop(df[~df["sqft_lot"].isin([0, 1])])
+
+    df.insert(0, 'intercept', 1, True)
+    return df.drop("price", 1), df.price
 
 
 def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
@@ -43,13 +82,21 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
     output_path: str (default ".")
         Path to folder in which plots are saved
     """
-    raise NotImplementedError()
+    for feature in X:
+        div = np.std(X[feature]) * np.std(y)
+        cov = np.cov(X[feature], y)[0, 1]
+        pc = cov / div
+        plt = px.scatter(pd.DataFrame({'x': X[feature], 'y': y}),
+                         x="x", y="y", trendline="ols",
+                         title="The correlation between " + feature + "values and their Pearson Correlation " + pc,
+                         labels={"x": feature + " Values", "y": "Response values"})
+        plt.write_image(output_path % feature)  # todo what!??!?!?!?!?!??!?!?!?
 
 
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
-    raise NotImplementedError()
+    X, y = load_data("../datasets/house_prices.csv")
 
     # Question 2 - Feature evaluation with respect to response
     raise NotImplementedError()

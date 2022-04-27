@@ -3,6 +3,7 @@ from typing import NoReturn
 from ...base import BaseEstimator
 import numpy as np
 from numpy.linalg import pinv
+import pandas as pd
 
 
 class LinearRegression(BaseEstimator):
@@ -52,10 +53,9 @@ class LinearRegression(BaseEstimator):
 
         # for the include_intercept_ case - add new column - [1,1,...,1]T at the beginning of X:
         if self.include_intercept_:
-            np.insert(X, 0, np.full(X.shape[1], 1), axis=1)
+            X = np.hstack([np.ones(len(X)).reshape(-1, 1), X])
 
-        self.coefs_ = np.transpose(np.linalg.pinv(np.transpose(X))) @ y
-
+        self.coefs_ = np.linalg.pinv(X) @ y
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -71,6 +71,9 @@ class LinearRegression(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
+
+        if self.include_intercept_:
+            X = np.hstack([np.ones(len(X)).reshape(-1, 1), X])
 
         return X @ self.coefs_
 

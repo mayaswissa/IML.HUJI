@@ -28,6 +28,10 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
     """
     random_X = X.sample(frac=1)
     match_y = y.reindex_like(random_X)
+    round_n = round(train_proportion * len(y))
+    ret = (random_X[:round_n], match_y[:round_n], random_X[round_n:], match_y[round_n:])
+    return ret
+
 
 
 def confusion_matrix(a: np.ndarray, b: np.ndarray) -> np.ndarray:

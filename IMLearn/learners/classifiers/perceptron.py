@@ -78,8 +78,8 @@ class Perceptron(BaseEstimator):
         self.coefs_ = np.zeros(X.shape[1])
         self.fitted_ = True
         iterations = 0
-        while iterations <self.max_iter_ and (np.sign(X @ self.coefs_) - y).any():
-            index = np.where(y * np.sign(X @ self.coefs_) <= 0)[0][-1]
+        while iterations < self.max_iter_ and (np.sign(X @ self.coefs_) - y).any():
+            index = np.where(y * np.sign(X @ self.coefs_) <= 0)[0][0]
             self.coefs_ += X[index] * y[index]
             iterations += 1
             self.callback_(self, X, y[0])

@@ -46,7 +46,7 @@ class GaussianNaiveBayes(BaseEstimator):
         self.vars_ = np.zeros([X.shape[1], len(self.classes_)])
         for k, class_ in enumerate(self.classes_):
             self.mu_[:, k] = np.mean(X[class_ == y], axis=0)
-            self.vars_[:, k] = np.var(X[class_ == y], axis=0)
+            self.vars_[:, k] = np.var(X[class_ == y], axis=0, ddof=1)
             self.pi_[k] = len(y[class_ == y])
         self.pi_ = self.pi_ / len(y)
         self.mu_ = np.transpose(self.mu_)

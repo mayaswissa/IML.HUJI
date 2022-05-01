@@ -148,6 +148,7 @@ def compare_gaussian_classifiers():
             fig.add_traces(elipse_gnb, rows=1, cols=2)
         fig.show()
 
+
 if __name__ == '__main__':
     np.random.seed(0)
     run_perceptron()
